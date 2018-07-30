@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js"></script>
+    <script type="text/javascript">
+    function initMap() {
+        new google.maps.Map(document.getElementById('map'), {
+            center: {lat: {{building.name}}, lng: {building:l}},
+            zoom: 16
+          });
+    }
+    </script>
+  </head>
+  
+  <body onload = "initMap()">
+      <div class="container">
+          <h1>{{building.name}}</h1>
+          <div id="map" style="width:100%; height:900px;"></div>
+      </div>
+  </body>
+</html>

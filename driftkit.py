@@ -23,6 +23,23 @@ def main():
         print("Unrecognized inputs:", sys.argv[2::])
 
     
+    print("""
+  _____  _____  _____ ______ _______ _  _______ _______ 
+ |  __ \|  __ \|_   _|  ____|__   __| |/ /_   _|__   __|
+ | |  | | |__) | | | | |__     | |  | ' /  | |    | |   
+ | |  | |  _  /  | | |  __|    | |  |  <   | |    | |   
+ | |__| | | \ \ _| |_| |       | |  | . \ _| |_   | |   
+ |_____/|_|  \_\_____|_|       |_|  |_|\_\_____|  |_|   
+ """)
+    print("-" * 40)
+    print("Because nobody likes speed cameras")
+    print("-" * 40)
+
+    start = input("Would you like to display locations and information of all\ntraffic cameras in Edmonton? ")
+    if start.lower().startswith("n"):
+        print("Goodbye!")
+        exit(0)
+
     data = load_csv(filename)
     print_data(data)
 
@@ -44,10 +61,10 @@ def load_csv(filename="assets/data.csv"):
 
 def print_data(data):
    for site in data:
-        print("{site}: {location} (Going {direction})".format(
+        print("Site {site}: {location} ({direction})".format(
             site=site, location=data[site][1], direction=data[site][2]))
         print("\tPosted speed: {speed}".format(speed=data[site][3]))
-        print("\tCoordinates: {coords}".format(coords=data[site][4]))
+        print("\tGPS Coordinates: {coords}".format(coords=data[site][4]))
         print()
 
 if __name__ == "__main__":
