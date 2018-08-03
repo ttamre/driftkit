@@ -20,6 +20,8 @@ __author__ = "Tem Tamre"
 __email__ = "ttamre@ualberta.ca"
 
 DEBUG = True
+INTERSECTION_CAMERAS = "https://data.edmonton.ca/api/views/fwx6-by2r/rows.csv?accessType=DOWNLOAD"
+SPEEDTRAP_ZONES = "https://data.edmonton.ca/api/views/akzz-54k3/rows.csv?accessType=DOWNLOAD"
 
 import os
 import sys
@@ -45,7 +47,8 @@ def menu():
 
     update()
 
-    cameras = load_data()
+    cameras = load_intersections()
+    traps = load_traps()
 
     ui = input("Would you like to use the terminal or the webserver interface?\n> ").lower()
     if ui.startswith("t"):
@@ -53,10 +56,10 @@ def menu():
         refresh_all(cameras, position)
 
         limit = float(input("Enter max distance to display cameras from (0 for no limit) > "))
-        print_all(cameras, limit=limit)
+        print_cameras(cameras, limit=limit)
 
         while True:
-            print("Options: refresh, lite, quit")
+            print("Options: refresh, lite, traps, quit")
             end_ui = input("> ")
 
             if end_ui.startswith("r"):
@@ -64,14 +67,17 @@ def menu():
                 refresh_all(cameras, position)
 
                 limit = float(input("Enter max distance to display cameras from (0 for no limit) > "))
-                print_all(cameras, limit=limit)
+                print_cameras(cameras, limit=limit)
 
             elif end_ui.startswith("l"):
                 position = float(input("Current Latitude > ")), float(input("Current Longitude > "))
                 refresh_all(cameras, position)
 
                 limit = float(input("Enter max distance to display cameras from (0 for no limit) > "))
-                print_all(cameras, lite=True, limit=limit)
+                print_cameras(cameras, lite=True, limit=limit)
+
+            elif end_ui.startswith("t"):
+                print_traps(traps)
 
             elif end_ui.startswith("q"):
                 sys.exit()
@@ -123,8 +129,29 @@ class Camera:
 
         return s
 
+class Trap:
+    def __init__(self, direction, location, speed):
+        self.direction = self.format_direction(direction)
+        self.location = location
+        self.speed = speed
 
-def load_data(filename="assets/data.csv"):
+        self.order = {"Northbound": 1, "Southbound": 2, "Eastbound": 3, "Westbound": 4}
+    
+    def format_direction(self, direction):
+        mappings = {"NB": "Northbound", "EB": "Eastbound", "SB": "Southbound", "WB": "Westbound"}
+        return mappings[direction]
+
+    def get_speed(self):
+        return self.speed
+
+    def __lt__(self, other):
+        return self.order[self.direction] < other.order[other.direction]
+
+    def __repr__(self):
+        return "{}\n  {}\n  Posted Speed: {} kilometres\n".format(self.location, self.direction, self.speed)
+    
+
+def load_intersections(filename="assets/intersections.csv"):
     camera_list = []
     with open(filename, newline='') as csvfile:
         csvreader = csv.reader(csvfile, delimiter=',')
@@ -143,6 +170,20 @@ def load_data(filename="assets/data.csv"):
     return camera_list
 
 
+def load_traps(filename="assets/traps.csv"):
+    trap_list = []
+    with open(filename, newline='') as csvfile:
+        csvreader = csv.reader(csvfile, delimiter=',')
+        next(csvreader, None)  # Skip the header
+
+        for row in csvreader:
+            direction = row[0][0:2]
+            location = row[0][2::]
+            speed = row[1]
+            trap = Trap(direction, location, speed)
+            trap_list.append(trap)
+    
+    return trap_list
 
 # ==================================================
 # Network functions
@@ -157,19 +198,29 @@ def internet():
 
 def update():
     print("-" * 70)
+
     if internet():
         print("Checking for update...")
-        url = "https://data.edmonton.ca/api/views/fwx6-by2r/rows.csv?accessType=DOWNLOAD"
+        intersection_request = requests.get(INTERSECTION_CAMERAS, timeout=3)
+        intersection_current = open("assets/intersections.csv", "rb").read()
+
+        trap_request = requests.get(SPEEDTRAP_ZONES, timeout=3)
+        trap_current = open("assets/traps.csv", "rb").read()
         
-        r = requests.get(url, timeout=3)
-        current = open("assets/data.csv", "rb").read()
-        
-        if r.content != current:
-            open("assets/data.csv", "wb").write(r.content)
+        if intersection_request.content != intersection_current:
+            open("assets/intersections.csv", "wb").write(intersection_request.content)
             now = datetime.datetime.now()
-            print("Data updated as of {}".format(now.strftime("%Y-%m-%d")))
+            print("Intersection data updated as of {}".format(now.strftime("%Y-%m-%d")))
         else:
-            print("Data already up to date")
+            print("Intersection data already up to date")
+        
+        if trap_request.content != trap_current:
+            open("assets/traps.csv", "wb").write(trap_request.content)
+            now = datetime.datetime.now()
+            print("Speed trap data updated as of {}".format(now.strftime("%Y-%m-%d")))
+        else:
+            print("Speed trap data already up to date")
+
     else:
         print("Internet connection required to update...")
         print("Data may be inaccurate - make sure to update weekly")
@@ -190,7 +241,7 @@ def refresh_all(cameras, position):
     time.sleep(0.5)
 
 
-def print_all(cameras, lite=False, limit=0):
+def print_cameras(cameras, lite=False, limit=0):
     cameras.sort()
     print("-" * 70)
     if lite:
@@ -207,6 +258,12 @@ def print_all(cameras, lite=False, limit=0):
     print("-" * 70)
 
 
+def print_traps(traps):
+    traps.sort()
+    print("-" * 70)
+    for trap in traps:
+        print(trap)
+    print("-" * 70)
 
 # ==================================================
 # Flask Webserver
