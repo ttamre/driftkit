@@ -5,6 +5,9 @@ Filename: driftkit.py
 
 Description: Intersection camera detector for the city of Edmonton
 
+Data from the City of Edmonton open data portal
+https://data.edmonton.ca/Transportation/Intersection-Safety-Device-Locations-Map/fwx6-by2r
+
 References:
 https://docs.python.org/3.6/library/csv.html
 https://stackoverflow.com/a/40283805
@@ -22,7 +25,6 @@ import os
 import sys
 import csv
 import time
-import platform
 import datetime
 import requests
 import socket
