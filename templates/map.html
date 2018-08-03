@@ -5,11 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js"></script>
+    <!-- <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js"></script> -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDNsZ1GcBSkshiSkRdjqgkogi_nxsEh868&callback=initMap" type="text/javascript"></script>
     <script type="text/javascript">
     function initMap() {
+        console.log('{{building.name}}: ({{building.lat}}, {{building.lon}})');
+        var latitude  = parseFloat('{{building.lat}}');
+        var longitude = parseFloat('{{building.lon}}');
+
         new google.maps.Map(document.getElementById('map'), {
-            center: {lat: 53.57706746, lng: -113.4922687},
+            center: {lat: latitude, lng: longitude},
             zoom: 16
           });
     }
