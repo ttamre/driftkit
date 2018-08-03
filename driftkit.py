@@ -22,6 +22,7 @@ import os
 import sys
 import csv
 import time
+import platform
 import datetime
 import requests
 import socket
@@ -30,7 +31,7 @@ from flask import Flask, render_template, abort
 
 
 def menu():
-    print("-" * 60)
+    print("-" * 70)
     print("""\
   _____  _____  _____ ______ _______ _  _______ _______ 
  |  __ \|  __ \|_   _|  ____|__   __| |/ /_   _|__   __|
@@ -39,21 +40,111 @@ def menu():
  | |__| | | \ \ _| |_| |       | |  | . \ _| |_   | |   
  |_____/|_|  \_\_____|_|       |_|  |_|\_\_____|  |_|   
  """)
-    print("-" * 60)
-    update()
-    print("-" * 60)
 
-    data = load_csv()
+    update()
+
+    cameras = load_data()
 
     ui = input("Would you like to use the terminal or the webserver interface?\n> ").lower()
     if ui.startswith("t"):
-        refresh(data)
-        print_data(data)
+        position = float(input("Current Latitude > ")), float(input("Current Longitude > "))
+        refresh_all(cameras, position)
+
+        limit = float(input("Enter max distance to display cameras from (0 for no limit) > "))
+        print_all(cameras, limit=limit)
+
+        while True:
+            print("Options: refresh, lite, quit")
+            end_ui = input("> ")
+
+            if end_ui.startswith("r"):
+                position = float(input("Current Latitude > ")), float(input("Current Longitude > "))
+                refresh_all(cameras, position)
+
+                limit = float(input("Enter max distance to display cameras from (0 for no limit) > "))
+                print_all(cameras, limit=limit)
+
+            elif end_ui.startswith("l"):
+                position = float(input("Current Latitude > ")), float(input("Current Longitude > "))
+                refresh_all(cameras, position)
+
+                limit = float(input("Enter max distance to display cameras from (0 for no limit) > "))
+                print_all(cameras, lite=True, limit=limit)
+
+            elif end_ui.startswith("q"):
+                sys.exit()
+        
+    
     elif ui.startswith("w"):
         if sys.version_info[0] == 3:
             app.run(debug=DEBUG)
+    else:
+        print("Unrecognized input")
 
 
+
+# ==================================================
+# Main functionality
+# ==================================================
+class Camera:
+    def __init__(self, site_id, enforcement, location, direction, speed, coords, distance=None):
+        self.site_id = site_id
+        self.enforcement = enforcement
+        self.location = location
+        self.direction = direction
+        self.speed = speed
+        self.coords = coords
+        self.distance = distance
+
+    def refresh(self, position):
+        self.distance = haversine(position, self.coords)
+
+    def get_distance(self):
+        return self.distance
+
+    def __lt__(self, other):
+        return self.distance < other.distance
+
+    def __repr__(self):
+        s = """Site {site}:\t{location} ({direction})
+        \tPosted speed: {speed}
+        \tGPS Coordinates: {coords}
+        \tApproximate distance away: {distance} kilometres\n
+        """.format(
+            site = self.site_id,
+            location = self.location,
+            direction = self.direction,
+            speed = self.speed,
+            coords = self.coords,
+            distance = "%.3f" % self.distance
+        )
+
+        return s
+
+
+def load_data(filename="assets/data.csv"):
+    camera_list = []
+    with open(filename, newline='') as csvfile:
+        csvreader = csv.reader(csvfile, delimiter=',')
+        next(csvreader, None)  # Skip the header
+        for row in csvreader:
+            site_id = row[0]
+            enforcement = row[1]
+            location = "{} {}".format(row[2], row[3])
+            direction = row[4]
+            speed = row[5]
+            coordinates = (float(row[6]), float(row[7]))
+            distance = None
+            camera = Camera(site_id, enforcement, location, direction, speed, coordinates, distance)
+            camera_list.append(camera)
+    
+    return camera_list
+
+
+
+# ==================================================
+# Network functions
+# ==================================================
 def internet():
     try:
         socket.create_connection(("www.google.com", 80))
@@ -63,6 +154,7 @@ def internet():
 
 
 def update():
+    print("-" * 70)
     if internet():
         print("Checking for update...")
         url = "https://data.edmonton.ca/api/views/fwx6-by2r/rows.csv?accessType=DOWNLOAD"
@@ -79,48 +171,39 @@ def update():
     else:
         print("Internet connection required to update...")
         print("Data may be inaccurate - make sure to update weekly")
+    print("-" * 70)
 
 
-def load_csv(filename="assets/data.csv"):
-    datadict = {}
-    with open(filename, newline='') as csvfile:
-        csvreader = csv.reader(csvfile, delimiter=',')
-        next(csvreader, None)  # Skip the header
-        for row in csvreader:
-            site_id = row[0]
-            enforcement = row[1]
-            location = "{} {}".format(row[2], row[3])
-            direction = row[4]
-            speed = row[5]
-            coordinates = (float(row[6]), float(row[7]))
-            distance = None
-            datadict[site_id] = [enforcement, location, direction, speed, coordinates, distance]
-    
-    return datadict
 
-def refresh(datadict):
-    # Add a distance value to each dictionary
-    # position = float(input("Current Latitude > ")), float(input("Current Longitude > "))
-    position = (53.56979565, -113.4521125)
+# ==================================================
+# Iterative functions
+# ==================================================
+def refresh_all(cameras, position):
+    for camera in cameras:
+        camera.refresh(position)
 
-    for site in datadict:
-        site_distance = datadict[site][4]
-        datadict[site][5] = haversine(position, site_distance)
-
-    print("-" * 60)
+    print("-" * 70)
     print("Data refreshed")
-    print("-" * 60)
-    time.sleep(1)
+    print("-" * 70)
+    time.sleep(0.5)
 
-def print_data(datadict):
 
-    for site in datadict:
-        print("Site {site}:\t{location} ({direction})".format(
-            site=site, location=datadict[site][1], direction=datadict[site][2]))
-        print("\t\tPosted speed: {speed}".format(speed=datadict[site][3]))
-        print("\t\tGPS Coordinates: {coords}".format(coords=datadict[site][4]))
-        print("\t\tApproximate distance away: {distance} kilometres\n".format(distance="%.2f" % datadict[site][5]))
-        
+def print_all(cameras, lite=False, limit=0):
+    cameras.sort()
+    print("-" * 70)
+    if lite:
+        for i in range(len(cameras)):
+            if limit == 0 or cameras[i].distance <= limit:
+                print("Camera {}) {} kilometres ({}, {})".format("%02d" % (i+1), "%.3f" % cameras[i].distance, cameras[i].speed, cameras[i].direction))
+                time.sleep(0.01)
+        print("-" * 70)
+    else:
+        for camera in cameras:
+            if limit == 0 or camera.distance <= limit:
+                print(camera)
+                time.sleep(0.01)
+    print("-" * 70)
+
 
 
 # ==================================================
