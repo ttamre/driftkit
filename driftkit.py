@@ -35,7 +35,7 @@ from flask import Flask, render_template, abort
 
 
 def menu():
-    print("-" * 70)
+    print("-" * 63)
     print("""\
   _____  _____  _____ ______ _______ _  _______ _______ 
  |  __ \|  __ \|_   _|  ____|__   __| |/ /_   _|__   __|
@@ -197,7 +197,7 @@ def internet():
 
 
 def update():
-    print("-" * 70)
+    print("-" * 63)
 
     if internet():
         print("Checking for update...")
@@ -224,7 +224,7 @@ def update():
     else:
         print("Internet connection required to update...")
         print("Data may be inaccurate - make sure to update weekly")
-    print("-" * 70)
+    print("-" * 63)
 
 
 
@@ -235,35 +235,35 @@ def refresh_all(cameras, position):
     for camera in cameras:
         camera.refresh(position)
 
-    print("-" * 70)
+    print("-" * 63)
     print("Data refreshed")
-    print("-" * 70)
+    print("-" * 63)
     time.sleep(0.5)
 
 
 def print_cameras(cameras, lite=False, limit=0):
     cameras.sort()
-    print("-" * 70)
+    print("-" * 63)
     if lite:
         for i in range(len(cameras)):
             if limit == 0 or cameras[i].distance <= limit:
                 print("Camera {}) {} kilometres ({}, {})".format("%02d" % (i+1), "%.3f" % cameras[i].distance, cameras[i].speed, cameras[i].direction))
                 time.sleep(0.01)
-        print("-" * 70)
+        print("-" * 63)
     else:
         for camera in cameras:
             if limit == 0 or camera.distance <= limit:
                 print(camera)
                 time.sleep(0.01)
-    print("-" * 70)
+    print("-" * 63)
 
 
 def print_traps(traps):
     traps.sort()
-    print("-" * 70)
+    print("-" * 63)
     for trap in traps:
         print(trap)
-    print("-" * 70)
+    print("-" * 63)
 
 # ==================================================
 # Flask Webserver
