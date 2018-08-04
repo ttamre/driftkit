@@ -281,7 +281,7 @@ buildings = (
     building('csc',  "Computing Science Center", 53.5267138, -113.5293044),
     building('ccis', "Centennial Centre for Interdisciplinary Sciences", 53.5281621, -113.5279304),
     building('etlc', "Engineering Teaching and Learing Complex", 53.5273883, -113.5316418),
-    building('echa', "Edmonton Clinic Health Academy", 53.5213938,-113.5287261,17)
+    building('echa', "Edmonton Clinic Health Academy", 53.5213938,-113.5287261)
 )
 
 buildings_by_key = {building.key: building for building in buildings}
