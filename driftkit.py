@@ -284,7 +284,7 @@ buildings = (
     building('echa', "Edmonton Clinic Health Academy", 53.5213938,-113.5287261),
     building('tory', "Tory Lecture Hall", 53.5282782,-113.5235847),
     building('sub',  "Students' Union Building", 53.5252652,-113.5293874),
-    building('bus',  "Alberta School of Business", 53.5273542,-113.5227988)
+    building('bus',  "Alberta School of Business", 53.5273542,-113.5227988),
     building('foot', "Foote Field", 53.5023045,-113.5284634)
 )
 
