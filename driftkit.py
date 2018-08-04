@@ -281,7 +281,11 @@ buildings = (
     building('csc',  "Computing Science Center", 53.5267138, -113.5293044),
     building('ccis', "Centennial Centre for Interdisciplinary Sciences", 53.5281621, -113.5279304),
     building('etlc', "Engineering Teaching and Learing Complex", 53.5273883, -113.5316418),
-    building('echa', "Edmonton Clinic Health Academy", 53.5213938,-113.5287261)
+    building('echa', "Edmonton Clinic Health Academy", 53.5213938,-113.5287261),
+    building('tory', "Tory Lecture Hall", 53.5282782,-113.5235847),
+    building('sub',  "Students' Union Building", 53.5252652,-113.5293874),
+    building('bus',  "Alberta School of Business", 53.5273542,-113.5227988)
+    building('foot', "Foote Field", 53.5023045,-113.5284634)
 )
 
 buildings_by_key = {building.key: building for building in buildings}
