@@ -8,16 +8,26 @@
     <!-- <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js"></script> -->
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDNsZ1GcBSkshiSkRdjqgkogi_nxsEh868&callback=initMap" type="text/javascript"></script>
     <script type="text/javascript">
+
     function initMap() {
-        console.log('{{building.name}}: ({{building.lat}}, {{building.lon}})');
         var latitude  = parseFloat('{{building.lat}}');
         var longitude = parseFloat('{{building.lon}}');
+        var coords = new google.maps.LatLng(latitude, longitude);
 
-        new google.maps.Map(document.getElementById('map'), {
+        var name = '{{building.name}}';
+
+        var map = new google.maps.Map(document.getElementById('map'), {
             center: {lat: latitude, lng: longitude},
-            zoom: 20
+            zoom: 16
           });
+
+          var marker = new google.maps.Marker({
+              position: coords,
+              map: map,
+              title: name
+          })
     }
+
     </script>
   </head>
   
