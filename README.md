@@ -111,7 +111,7 @@ Please email me at ttamre@ualberta.ca for details on code of conduct, and the pr
 
 * **Tem Tamre** - *Project Lead/Owner* - [Github](https://github.com/ttamre)
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/ttamre/driftkit/graphs/contributors) who participated in this project.
 
 ## License
 
