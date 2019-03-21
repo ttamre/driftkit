@@ -15,7 +15,7 @@ https://stackoverflow.com/a/40283805
 __author__ = "Tem Tamre"
 __email__ = "ttamre@ualberta.ca"
 
-DEBUG = True
+DEBUG = False
 INTERSECTION_CAMERAS = "https://data.edmonton.ca/api/views/fwx6-by2r/rows.csv?accessType=DOWNLOAD"
 SPEEDTRAP_ZONES = "https://data.edmonton.ca/api/views/akzz-54k3/rows.csv?accessType=DOWNLOAD"
 
@@ -246,7 +246,7 @@ def update():
     else:
         print("Internet connection required to update...")
         print("Data may be inaccurate - make sure to update weekly")
-    print("-" * 70)
+    print("-" * 63)
 
 
 # ==================================================
@@ -262,9 +262,14 @@ class building:
         self.lon  = lon
 
 buildings = (
-    building('csc',  "Computing Science Center", 53.5267138, -113.5293044),
-    building('ccis', "Centennial Centre for Interdisciplinary Sciences", 53.5281621, -113.5279304),
-    building('etlc', "Engineering Teaching and Learing Complex", 53.5273883, -113.5316418)
+    building('csc',  "Computing Science Center", 53.526757,-113.529391),
+    building('ccis', "Centennial Centre for Interdisciplinary Sciences", 53.5281605,-113.526836),
+    building('etlc', "Engineering Teaching and Learing Complex", 53.5273485,-113.53189768),
+    building('echa', "Edmonton Clinic Health Academy", 53.5223334,-113.5283363),
+    building('tory', "Tory Lecture Hall", 53.5282782,-113.5235847),
+    building('sub',  "Students' Union Building", 53.5252652,-113.5293874),
+    building('bus',  "Alberta School of Business", 53.5273542,-113.5227988),
+    building('foot', "Foote Field", 53.5023045,-113.5284634)
 )
 
 buildings_by_key = {building.key: building for building in buildings}
