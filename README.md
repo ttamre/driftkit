@@ -46,12 +46,8 @@ $ git clone https://github.com/ttamre/driftkit.git
 ### Starting the program
 If your default python version is version 3.x, run the following in your terminal
 ```
-$ python driftkit.py
-```
-
-If it is something else, run the following in your terminal instead
-```
-$ python3 driftkit.py
+$ python driftkit.py            # If you have python3 installed and it is default
+$ python3 driftkit.py           # If you have python3 installed and it is not default
 ```
 
 To check your default python version, run the following command

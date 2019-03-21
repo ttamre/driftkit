@@ -11,10 +11,6 @@ https://data.edmonton.ca/Transportation/Intersection-Safety-Device-Locations-Map
 References:
 https://docs.python.org/3.6/library/csv.html
 https://stackoverflow.com/a/40283805
-
-TODO
-- sort cameras by closest distance (Haversine?)
-- give approx. distance to nearest camera (Haversine?)
 """
 __author__ = "Tem Tamre"
 __email__ = "ttamre@ualberta.ca"
@@ -33,8 +29,17 @@ import socket
 from haversine import haversine
 from flask import Flask, render_template, abort
 
+from camera import Camera
+from trap import Trap
+
 
 def menu():
+    '''
+    Display the menu that the user will see and interact with
+
+    Parameter(s):   None
+    Return:         None
+    '''
     print("-" * 70)
     print("""\
   _____  _____  _____ ______ _______ _  _______ _______ 
@@ -45,9 +50,10 @@ def menu():
  |_____/|_|  \_\_____|_|       |_|  |_|\_\_____|  |_|   
  """)
 
+    # Update all relevant .csv files
     update()
 
-    cameras = load_intersections()
+    cameras = load_cameras()
     traps = load_traps()
 
     ui = input("Would you like to use the terminal or the webserver interface?\n> ").lower()
@@ -81,81 +87,26 @@ def menu():
 
             elif end_ui.startswith("q"):
                 sys.exit()
-        
     
     elif ui.startswith("w"):
         if sys.version_info[0] == 3:
             app.run(debug=DEBUG)
     else:
         print("Unrecognized input")
-
-
-
-# ==================================================
-# Main functionality
-# ==================================================
-class Camera:
-    def __init__(self, site_id, enforcement, location, direction, speed, coords, distance=None):
-        self.site_id = site_id
-        self.enforcement = enforcement
-        self.location = location
-        self.direction = direction
-        self.speed = speed
-        self.coords = coords
-        self.distance = distance
-
-    def refresh(self, position):
-        self.distance = haversine(position, self.coords)
-
-    def get_distance(self):
-        return self.distance
-
-    def __lt__(self, other):
-        return self.distance < other.distance
-
-    def __repr__(self):
-        s = """Site {site}:\t{location} ({direction})
-        \tPosted speed: {speed}
-        \tGPS Coordinates: {coords}
-        \tApproximate distance away: {distance} kilometres\n
-        """.format(
-            site = self.site_id,
-            location = self.location,
-            direction = self.direction,
-            speed = self.speed,
-            coords = self.coords,
-            distance = "%.3f" % self.distance
-        )
-
-        return s
-
-class Trap:
-    def __init__(self, direction, location, speed):
-        self.direction = self.format_direction(direction)
-        self.location = location
-        self.speed = speed
-
-        self.order = {"Northbound": 1, "Southbound": 2, "Eastbound": 3, "Westbound": 4}
-    
-    def format_direction(self, direction):
-        mappings = {"NB": "Northbound", "EB": "Eastbound", "SB": "Southbound", "WB": "Westbound"}
-        return mappings[direction]
-
-    def get_speed(self):
-        return self.speed
-
-    def __lt__(self, other):
-        return self.order[self.direction] < other.order[other.direction]
-
-    def __repr__(self):
-        return "{}\n  {}\n  Posted Speed: {} kilometres\n".format(self.location, self.direction, self.speed)
     
 
-def load_intersections(filename="assets/intersections.csv"):
+def load_cameras(filename="assets/intersections.csv"):
+    '''
+    Load a list of intersection cameras based on the file at the given filename
+
+    Parameter(s):   filename<string>            Path of file to load and parse
+    Return:         camera_list<list><Camera>   List of intersection cameras that were found in filename
+    '''
     camera_list = []
     with open(filename, newline='') as csvfile:
         csvreader = csv.reader(csvfile, delimiter=',')
         next(csvreader, None)  # Skip the header
+
         for row in csvreader:
             site_id = row[0]
             enforcement = row[1]
@@ -171,6 +122,12 @@ def load_intersections(filename="assets/intersections.csv"):
 
 
 def load_traps(filename="assets/traps.csv"):
+    '''
+    Load a list of speed trap zones based on the file at the given filename
+
+    Parameter(s):   filename<string>        Path of file to load and parse
+    Return:         trap_list<list><Trap>   List of speed trap zones that were found in filename
+    '''
     trap_list = []
     with open(filename, newline='') as csvfile:
         csvreader = csv.reader(csvfile, delimiter=',')
@@ -185,20 +142,85 @@ def load_traps(filename="assets/traps.csv"):
     
     return trap_list
 
-# ==================================================
-# Network functions
-# ==================================================
+
+def print_cameras(cameras, lite=False, limit=0):
+    '''
+    Print a list of all the cameras, in order of closest to farthest from the user
+
+    Parameter(s):   cameras<list><Camera>   The cameras that we're printing
+                    lite (default=False)    True for condensed output
+                    limit (default=0)       Number of cameras to print (0 means no limit)
+    Return:         None
+    '''
+    cameras.sort()
+    print("-" * 70)
+    if lite:
+        for i in range(len(cameras)):
+            if limit == 0 or cameras[i].distance <= limit:
+                print("Camera {}) {} kilometres ({}, {})".format("%02d" % (i+1), "%.3f" % cameras[i].distance, cameras[i].speed, cameras[i].direction))
+                time.sleep(0.01)
+        print("-" * 70)
+    else:
+        for camera in cameras:
+            if limit == 0 or camera.distance <= limit:
+                print(camera)
+                time.sleep(0.01)
+    print("-" * 70)
+
+
+def print_traps(traps):
+    '''
+    Print a list of all the traps, in order of closest to farthest from the user
+
+    Parameter(s):   traps<list><Trap>   The traps that we're printing
+    Return:         None
+
+    NOTE: Sorting needs to be tested, might be an issue with Trap.__lt__() and Trap.location
+    '''
+    traps.sort()
+    print("-" * 70)
+    for trap in traps:
+        print(trap)
+    print("-" * 70)
+
+
+def refresh_all(cameras, position):
+    '''
+    '''
+    for camera in cameras:
+        camera.refresh(position)
+
+    print("-" * 70)
+    print("Data refreshed")
+    print("-" * 70)
+    time.sleep(0.5)
+
+
 def internet():
+    '''
+    Try to establish a connection to the Edmonton open data portal to ensure internet connectivity
+
+    Parameter(s):   None
+    Return:         True if a connection was established, false otherwise
+    '''
     try:
-        socket.create_connection(("www.google.com", 80))
+        socket.create_connection(("https://data.edmonton.ca/", 80))
         return True
     except OSError:
         return False
 
 
 def update():
-    print("-" * 70)
+    '''
+    If an internet connection is able to be established, compare our data to the data in the data portal
+    If there are any differences, take the version on the data portal and overwrite our data with it
 
+    Parameter(s):   None
+    Return:         None
+
+    NOTE: The datasets used in this application are updated weekly. Just to be sure, this program will check every time it's run
+    '''
+    print("-" * 70)
     if internet():
         print("Checking for update...")
         intersection_request = requests.get(INTERSECTION_CAMERAS, timeout=3)
@@ -227,46 +249,8 @@ def update():
     print("-" * 70)
 
 
-
 # ==================================================
-# Iterative functions
-# ==================================================
-def refresh_all(cameras, position):
-    for camera in cameras:
-        camera.refresh(position)
-
-    print("-" * 70)
-    print("Data refreshed")
-    print("-" * 70)
-    time.sleep(0.5)
-
-
-def print_cameras(cameras, lite=False, limit=0):
-    cameras.sort()
-    print("-" * 70)
-    if lite:
-        for i in range(len(cameras)):
-            if limit == 0 or cameras[i].distance <= limit:
-                print("Camera {}) {} kilometres ({}, {})".format("%02d" % (i+1), "%.3f" % cameras[i].distance, cameras[i].speed, cameras[i].direction))
-                time.sleep(0.01)
-        print("-" * 70)
-    else:
-        for camera in cameras:
-            if limit == 0 or camera.distance <= limit:
-                print(camera)
-                time.sleep(0.01)
-    print("-" * 70)
-
-
-def print_traps(traps):
-    traps.sort()
-    print("-" * 70)
-    for trap in traps:
-        print(trap)
-    print("-" * 70)
-
-# ==================================================
-# Flask Webserver
+# Flask Webserver (Incomplete - for version 2)
 # ==================================================
 app = Flask(__name__)
 
