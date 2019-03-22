@@ -47,6 +47,7 @@ from flask import Flask, render_template, abort
 
 from camera import Camera
 from trap import Trap
+from building import Building
 
 
 def menu():
@@ -280,25 +281,18 @@ def update():
 # ==================================================
 app = Flask(__name__)
 
-class building:
-    def __init__(self, key, name, lat, lon):
-        self.key  = key
-        self.name = name
-        self.lat  = lat
-        self.lon  = lon
-
 buildings = (
-    building('csc',  "Computing Science Center", 53.526757,-113.529391),
-    building('ccis', "Centennial Centre for Interdisciplinary Sciences", 53.5281605,-113.526836),
-    building('etlc', "Engineering Teaching and Learing Complex", 53.5273485,-113.53189768),
-    building('echa', "Edmonton Clinic Health Academy", 53.5223334,-113.5283363),
-    building('tory', "Tory Lecture Hall", 53.5282782,-113.5235847),
-    building('sub',  "Students' Union Building", 53.5252652,-113.5293874),
-    building('bus',  "Alberta School of Business", 53.5273542,-113.5227988),
-    building('foot', "Foote Field", 53.5023045,-113.5284634)
+    Building('csc',  "Computing Science Center", 53.526757,-113.529391),
+    Building('ccis', "Centennial Centre for Interdisciplinary Sciences", 53.5281605,-113.526836),
+    Building('etlc', "Engineering Teaching and Learing Complex", 53.5273485,-113.53189768),
+    Building('echa', "Edmonton Clinic Health Academy", 53.5223334,-113.5283363),
+    Building('tory', "Tory Lecture Hall", 53.5282782,-113.5235847),
+    Building('sub',  "Students' Union Building", 53.5252652,-113.5293874),
+    Building('bus',  "Alberta School of Business", 53.5273542,-113.5227988),
+    Building('foot', "Foote Field", 53.5023045,-113.5284634)
 )
 
-buildings_by_key = {building.key: building for building in buildings}
+buildings_by_key = {building.get_key(): building for building in buildings}
 
 @app.route('/')
 def index():
