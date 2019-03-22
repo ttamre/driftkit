@@ -1,9 +1,25 @@
 #!/usr/bin/env python3
 
 """
-Filename: driftkit.py
+Driftkit - Edmonton intersection camera and speed zone tracker
+Copyright (C) 2019 Tem Tamre
 
-Description: Intersection camera detector for the city of Edmonton
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+Filename: driftkit.py
+Description: Main file for the driftkit program
 
 Data from the City of Edmonton open data portal
 https://data.edmonton.ca/Transportation/Intersection-Safety-Device-Locations-Map/fwx6-by2r
@@ -40,6 +56,10 @@ def menu():
     Parameter(s):   None
     Return:         None
     '''
+    print("\nDriftkit Copyright (C) 2019 Tem Tamre")
+    print("This program comes with ABSOLUTELY NO WARRANTY.")
+    print("This is free software, and you are welcome to redistribute it")
+    print("under certain conditions; view LICENSE for details.\n")
     print("-" * 70)
     print("""\
   _____  _____  _____ ______ _______ _  _______ _______ 
@@ -53,6 +73,7 @@ def menu():
     # Update all relevant .csv files
     update()
 
+    # Load all cameras and traps
     cameras = load_cameras()
     traps = load_traps()
 
@@ -156,13 +177,14 @@ def print_cameras(cameras, lite=False, limit=0):
     print("-" * 70)
     if lite:
         for i in range(len(cameras)):
-            if limit == 0 or cameras[i].distance <= limit:
-                print("Camera {}) {} kilometres ({}, {})".format("%02d" % (i+1), "%.3f" % cameras[i].distance, cameras[i].speed, cameras[i].direction))
+            distance = cameras[i].get_distance()
+            if limit == 0 or distance <= limit:
+                print("Camera {}) {} kilometres ({}, {})".format("%02d" % (i+1), "%.3f" % cameras[i].get_distance(), cameras[i].get_speed(), cameras[i].get_direction()))
                 time.sleep(0.01)
         print("-" * 70)
     else:
         for camera in cameras:
-            if limit == 0 or camera.distance <= limit:
+            if limit == 0 or camera.get_distance() <= limit:
                 print(camera)
                 time.sleep(0.01)
     print("-" * 70)
@@ -186,6 +208,10 @@ def print_traps(traps):
 
 def refresh_all(cameras, position):
     '''
+    Update all camera distances with our current position
+
+    Parameter(s):   position<tuple><float>  Current position of the user
+    Return:         None
     '''
     for camera in cameras:
         camera.refresh(position)
@@ -198,13 +224,13 @@ def refresh_all(cameras, position):
 
 def internet():
     '''
-    Try to establish a connection to the Edmonton open data portal to ensure internet connectivity
+    Try to establish a connection to google.ca to ensure internet connectivity
 
     Parameter(s):   None
     Return:         True if a connection was established, false otherwise
     '''
     try:
-        socket.create_connection(("https://data.edmonton.ca/", 80))
+        socket.create_connection(("www.google.ca", 80))
         return True
     except OSError:
         return False
