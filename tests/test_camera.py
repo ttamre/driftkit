@@ -82,4 +82,7 @@ class TestCamera(unittest.TestCase):
             speed=50,
             coords=(50, -100)
         )
+        
+        camera_1.refresh((50, -100))
+        camera_2.refresh((50, -100))
         assert camera_1 < camera_2
