@@ -22,7 +22,12 @@ Description: Source file to the Trap class
 
 class Trap:
     def __init__(self, direction, location, speed):
-        self.direction = self.format_direction(direction)
+        """
+        :param direction    str     Direction the camera is facing (NB, SB, EB, WB) (Converted into full text on initialization)
+        :param location     str     Location of the camera (address)
+        :param speed        int     Speed limit of the camera
+        """
+        self.direction = self._format_direction(direction)
         self.location = location
         self.speed = speed
         self.order = {"Northbound": 1, "Southbound": 2, "Eastbound": 3, "Westbound": 4}
@@ -36,7 +41,7 @@ class Trap:
     def get_speed(self):
         return self.speed
 
-    def format_direction(self, direction):
+    def _format_direction(self, direction):
         '''
         Parameter(s):   direction<>
         Return:         value<string>
