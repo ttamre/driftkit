@@ -57,7 +57,7 @@ class Camera:
         self.distance = haversine(position, self.coords)
 
     def __lt__(self, other):
-        if (not self.distance) or (not other.distance):
+        if self.distance is None or other.distance is None:
             raise TypeError("Cannot compare object(s) with distance=None")
         return self.distance < other.distance
 

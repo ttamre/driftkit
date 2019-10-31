@@ -85,4 +85,4 @@ class TestCamera(unittest.TestCase):
         
         camera_1.refresh((50, -100))
         camera_2.refresh((50, -100))
-        assert camera_1 < camera_2
+        assert camera_1 > camera_2
