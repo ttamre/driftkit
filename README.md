@@ -1,5 +1,6 @@
-
 # driftkit
+[![CircleCI](https://circleci.com/gh/ttamre/driftkit/tree/master.svg?style=svg)](https://circleci.com/gh/ttamre/driftkit/tree/master)
+
 Python script that reads speed camera data and displays their locations, distance from you, and other important information. Designed to work with data from the City of Edmonton open data portal.
 
 ![demo](assets/demo.gif)
