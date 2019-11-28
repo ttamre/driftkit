@@ -21,12 +21,14 @@ Description: Source file to the Trap class
 """
 
 class Trap:
-    def __init__(self, direction, location, speed):
+    def __init__(self, site_id, direction, location, speed):
         """
-        :param direction    str     Direction the camera is facing (NB, SB, EB, WB) (Converted into full text on initialization)
-        :param location     str     Location of the camera (address)
-        :param speed        int     Speed limit of the camera
+        :param site_id      str     Site ID of the speed trap
+        :param direction    str     Direction the speed trap is facing (NB, SB, EB, WB) (Converted into full text on initialization)
+        :param location     str     Location of the speed trap (address)
+        :param speed        int     Speed limit of the speed trap
         """
+        self.site_id = site_id
         self.direction = self._format_direction(direction)
         self.location = location
         self.speed = speed

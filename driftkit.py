@@ -131,13 +131,12 @@ def load_cameras(filename="assets/intersections.csv"):
 
         for row in csvreader:
             site_id = row[0]
-            enforcement = row[1]
-            location = "{} {}".format(row[2], row[3])
-            direction = row[4]
-            speed = int(row[5].split(" ")[0])
-            coordinates = (float(row[6]), float(row[7]))
+            location = "{} {}".format(row[1], row[2])
+            direction = row[3]
+            speed = int(float(row[4].split(" ")[0]))
+            coordinates = (float(row[5]), float(row[6]))
             distance = None
-            camera = Camera(site_id, enforcement, location, direction, speed, coordinates, distance)
+            camera = Camera(site_id, location, direction, speed, coordinates, distance)
             camera_list.append(camera)
     
     return camera_list
@@ -156,10 +155,11 @@ def load_traps(filename="assets/traps.csv"):
         next(csvreader, None)  # Skip the header
 
         for row in csvreader:
-            direction = row[0][0:2]
-            location = row[0][2::]
-            speed = int(row[1])
-            trap = Trap(direction, location, speed)
+            site_id = row[0]
+            direction = row[1][0:2]
+            location = row[1][2::]
+            speed = int(row[2])
+            trap = Trap(site_id, direction, location, speed)
             trap_list.append(trap)
     
     return trap_list

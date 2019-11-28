@@ -23,9 +23,8 @@ Description: Source file to the Camera class
 from haversine import haversine
 
 class Camera:
-    def __init__(self, site_id, enforcement, location, direction, speed, coords, distance=None):
+    def __init__(self, site_id, location, direction, speed, coords, distance=None):
         self.site_id = site_id
-        self.enforcement = enforcement
         self.location = location
         self.direction = direction
         self.speed = speed
