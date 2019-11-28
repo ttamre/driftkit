@@ -26,17 +26,17 @@ from trap import Trap
 
 class TestTrap(unittest.TestCase):
     def test_init(self):
-        trap = Trap("SB", "156 St between 99 - 98 Ave", 50)
+        trap = Trap(50, "SB", "156 St between 99 - 98 Ave", 50)
         assert trap
         assert isinstance(trap, Trap)
     
     def test_getters(self):
-        trap = Trap("SB", "156 St between 99 - 98 Ave", 50)
+        trap = Trap(50, "SB", "156 St between 99 - 98 Ave", 50)
         assert trap.get_direction() == "Southbound"
         assert trap.get_location() == "156 St between 99 - 98 Ave"
         assert trap.get_speed() == 50
 
     def test_lt(self):
-        trap_1 = Trap("SB", "156 St between 99 - 98 Ave", 50)
-        trap_2 = Trap("WB", "156 St between 158 - 160 St", 50)
+        trap_1 = Trap(50, "SB", "156 St between 99 - 98 Ave", 50)
+        trap_2 = Trap(50, "WB", "156 St between 158 - 160 St", 50)
         assert trap_1 < trap_2

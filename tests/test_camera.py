@@ -28,7 +28,6 @@ class TestCamera(unittest.TestCase):
     def test_init(self):
         camera = Camera(
             site_id="ED011",
-            enforcement="Red Light/Speed on Green",
             location="109 Street at 104 Avenue",
             direction="Southbound",
             speed=50,
@@ -40,7 +39,6 @@ class TestCamera(unittest.TestCase):
     def test_getters(self):
         camera = Camera(
             site_id="ED011",
-            enforcement="Red Light/Speed on Green",
             location="109 Street at 104 Avenue",
             direction="Southbound",
             speed=50,
@@ -55,7 +53,6 @@ class TestCamera(unittest.TestCase):
     def test_refresh(self):
         camera = Camera(
             site_id="ED011",
-            enforcement="Red Light/Speed on Green",
             location="109 Street at 104 Avenue",
             direction="Southbound",
             speed=50,
@@ -68,7 +65,6 @@ class TestCamera(unittest.TestCase):
     def test_lt(self):
         camera_1 = Camera(
             site_id="ED011",
-            enforcement="Red Light/Speed on Green",
             location="109 Street at 104 Avenue",
             direction="Southbound",
             speed=50,
@@ -76,7 +72,6 @@ class TestCamera(unittest.TestCase):
         )
         camera_2 = Camera(
             site_id="ED011",
-            enforcement="Red Light/Speed on Green",
             location="109 Street at 104 Avenue",
             direction="Southbound",
             speed=50,
