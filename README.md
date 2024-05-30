@@ -75,17 +75,6 @@ Enter one of the three options
 
 ```quit``` will exit the program
 
-
-## Contributing
-
-Please email me at ttamre@ualberta.ca for details on code of conduct, and the process for submitting pull requests.
-
-## Authors
-
-* **Tem Tamre** - *Project Lead/Owner* - [Github](https://github.com/ttamre)
-
-See also the list of [contributors](https://github.com/ttamre/driftkit/graphs/contributors) who participated in this project.
-
 ## License
 
 This project is licensed under the GNU General Public License - see [LICENSE](LICENSE) for more details
