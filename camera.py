@@ -23,7 +23,15 @@ Description: Source file to the Camera class
 from haversine import haversine
 
 class Camera:
-    def __init__(self, site_id, location, direction, speed, coords, distance=None):
+    def __init__(self, site_id, speed, direction, location, coords, distance=None):
+        """
+        :param site_id      str     Site ID of the speed trap
+        :param speed        int     Speed limit of the speed trap
+        :param direction    str     Direction of the road that approaches the camera
+        :param location     str     Address of the camera 
+        :param coords       tuple   GPS coordinates of the camera (latitude, longitude)
+        :param distance     float   Approximate distance between the user and the camera
+        """
         self.site_id = site_id
         self.location = location
         self.direction = direction
@@ -61,17 +69,13 @@ class Camera:
         return self.distance < other.distance
 
     def __repr__(self):
-        s = """Site {site}:\t{location} ({direction})
-        \tPosted speed: {speed}
-        \tGPS Coordinates: {coords}
-        \tApproximate distance away: {distance} kilometres\n
+        return """Site {site}:\t{location} ({direction})
+        \tSpeed:    {speed} km/h
+        \tDistance: {distance} km\n
         """.format(
             site = self.site_id,
             location = self.location,
             direction = self.direction,
             speed = self.speed,
-            coords = self.coords,
             distance = "%.3f" % self.distance
         )
-
-        return s

@@ -20,19 +20,27 @@ Filename: trap.py
 Description: Source file to the Trap class
 """
 
+from haversine import haversine
+
 class Trap:
-    def __init__(self, site_id, direction, location, speed):
+
+    MAPPINGS = {"NB": "Northbound", "EB": "Eastbound", "SB": "Southbound", "WB": "Westbound"}
+
+    def __init__(self, site_id, speed, direction, location, coords, distance=None):
         """
-        :param site_id      str     Site ID of the speed trap
-        :param direction    str     Direction the speed trap is facing (NB, SB, EB, WB) (Converted into full text on initialization)
-        :param location     str     Location of the speed trap (address)
-        :param speed        int     Speed limit of the speed trap
+        :param site_id      str     Site ID of the speed trap zone
+        :param speed        int     Speed limit of the speed trap zone
+        :param direction    str     Direction of the road that approaches the trap zone
+        :param location     str     Address of the trap zone
+        :param coords       tuple   GPS coordinates of the trap zone(latitude, longitude)
+        :param distance     float   Approximate distance between the user and the trap zone
         """
         self.site_id = site_id
-        self.direction = self._format_direction(direction)
+        self.direction = self.MAPPINGS[direction]
         self.location = location
+        self.coords = coords
         self.speed = speed
-        self.order = {"Northbound": 1, "Southbound": 2, "Eastbound": 3, "Westbound": 4}
+        self.distance = distance
 
     def get_direction(self):
         return self.direction
@@ -40,23 +48,26 @@ class Trap:
     def get_location(self):
         return self.location
 
+    def get_coords(self):
+        return self.coords
+
     def get_speed(self):
         return self.speed
+    
+    def refresh(self, position):
+        '''
+        Recalculate the distance between the user and the trap zone
 
-    def _format_direction(self, direction):
+        Parameter(s):   position<tuple><float>  Current position of the user
+        Return:         None
         '''
-        Parameter(s):   direction<>
-        Return:         value<string>
-        '''
-        mappings = {"NB": "Northbound", "EB": "Eastbound", "SB": "Southbound", "WB": "Westbound"}
-        return mappings[direction]
+        self.distance = haversine(position, self.coords)
 
     def __lt__(self, other):
-        '''
-        Comparator method
-        NOTE: Should be changed to use GPS coordinates and the haversine formula for comparisons
-        '''
-        return self.order[self.direction] < other.order[other.direction]
+        # return self.order[self.direction] < other.order[other.direction]
+        if self.distance is None or other.distance is None:
+            raise TypeError("Cannot compare object(s) with distance=None")
+        return self.distance < other.distance
 
     def __repr__(self):
-        return "{}\n  {}\n  Posted Speed: {} kilometres\n".format(self.location, self.direction, self.speed)
+        return "{}\n{} km/h ({})\n".format(self.location, self.speed, self.direction)

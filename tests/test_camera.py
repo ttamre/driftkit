@@ -27,10 +27,10 @@ from camera import Camera
 class TestCamera(unittest.TestCase):
     def test_init(self):
         camera = Camera(
-            site_id="ED011",
-            location="109 Street at 104 Avenue",
-            direction="Southbound",
+            site_id="TEST_INIT",
             speed=50,
+            direction="Southbound",
+            location="109 Street at 104 Avenue",
             coords=(53.54646216, -113.5085364)
         )
         assert camera
@@ -38,10 +38,10 @@ class TestCamera(unittest.TestCase):
     
     def test_getters(self):
         camera = Camera(
-            site_id="ED011",
-            location="109 Street at 104 Avenue",
-            direction="Southbound",
+            site_id="TEST_GETTERS",
             speed=50,
+            direction="Southbound",
+            location="109 Street at 104 Avenue",
             coords=(53.54646216, -113.5085364)
         )
         assert camera.get_location() == "109 Street at 104 Avenue"
@@ -52,10 +52,10 @@ class TestCamera(unittest.TestCase):
 
     def test_refresh(self):
         camera = Camera(
-            site_id="ED011",
-            location="109 Street at 104 Avenue",
-            direction="Southbound",
+            site_id="TEST_REFRESH",
             speed=50,
+            direction="Southbound",
+            location="109 Street at 104 Avenue",
             coords=(53.54646216, -113.5085364)
         )
         new_position = (50, -100)
@@ -64,17 +64,17 @@ class TestCamera(unittest.TestCase):
 
     def test_lt(self):
         camera_1 = Camera(
-            site_id="ED011",
-            location="109 Street at 104 Avenue",
-            direction="Southbound",
+            site_id="TEST_LT_FARTHER",
             speed=50,
+            direction="Southbound",
+            location="109 Street at 104 Avenue",
             coords=(53.54646216, -113.5085364)
         )
         camera_2 = Camera(
-            site_id="ED011",
-            location="109 Street at 104 Avenue",
-            direction="Southbound",
+            site_id="TEST_LT_CLOSER",
             speed=50,
+            direction="Southbound",
+            location="109 Street at 104 Avenue",
             coords=(50, -100)
         )
         
