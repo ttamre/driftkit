@@ -34,10 +34,7 @@ These instructions will get you a copy of the project up and running on your loc
 ### Prerequisites
 Install the following modules if you don't already have them
 ```
-$ pip install flask
-$ pip install haversine
-$ pip install requests
-$ pip install socket
+$ pip install flask haversine requests socket
 ```
 
 ### Installing
@@ -48,21 +45,12 @@ Clone the repository into a location of your choosing
 $ git clone https://github.com/ttamre/driftkit.git
 ```
 
-## Running driftkit
-
-### Starting the program
-If your default python version is version 3.x, run the following in your terminal
-```
-$ python driftkit.py            # If you have python3 installed and it is default
-$ python3 driftkit.py           # If you have python3 installed and it is not default
-```
-
-To check your default python version, run the following command
-```
-$ python --version
-```
 
 ### Usage
+```
+$ python3 driftkit.py
+```
+
 ```
   _____  _____  _____ ______ _______ _  _______ _______ 
  |  __ \|  __ \|_   _|  ____|__   __| |/ /_   _|__   __|
