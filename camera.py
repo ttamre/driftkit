@@ -23,7 +23,7 @@ Description: Source file to the Camera class
 from haversine import haversine
 
 class Camera:
-    def __init__(self, site_id, speed, direction, location, coords, distance=None):
+    def __init__(self, site_id, speed, direction, location, coords, distance=0.0):
         """
         :param site_id      str     Site ID of the speed trap
         :param speed        int     Speed limit of the speed trap
@@ -39,20 +39,22 @@ class Camera:
         self.coords = coords
         self.distance = distance
 
-    def get_location(self):
-        return self.location
+    
+    def get_speed(self):
+        return self.speed
 
     def get_direction(self):
         return self.direction
 
-    def get_speed(self):
-        return self.speed
+    def get_location(self):
+        return self.location
     
     def get_coords(self):
         return self.coords
 
     def get_distance(self):
         return self.distance
+    
 
     def refresh(self, position):
         '''
@@ -64,8 +66,6 @@ class Camera:
         self.distance = haversine(position, self.coords)
 
     def __lt__(self, other):
-        if self.distance is None or other.distance is None:
-            raise TypeError("Cannot compare object(s) with distance=None")
         return self.distance < other.distance
 
     def __repr__(self):

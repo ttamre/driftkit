@@ -25,6 +25,7 @@ import unittest
 from trap import Trap
 
 class TestTrap(unittest.TestCase):
+
     def test_init(self):
         trap = Trap(
             site_id="TEST_INIT",
@@ -33,8 +34,8 @@ class TestTrap(unittest.TestCase):
             location="156 St between 99 - 98 Ave",
             coords=(53.54646216, -113.5085364)
         )
-        assert trap
-        assert isinstance(trap, Trap)
+        self.assertIsNotNone(trap)
+        self.assertIsInstance(trap, Trap)
     
     def test_getters(self):
         trap = Trap(
@@ -44,9 +45,11 @@ class TestTrap(unittest.TestCase):
             location="156 St between 99 - 98 Ave",
             coords=(53.54646216, -113.5085364)
         )
-        assert trap.get_direction() == "Southbound"
-        assert trap.get_location() == "156 St between 99 - 98 Ave"
-        assert trap.get_speed() == 50
+        self.assertEqual(trap.get_direction(), "Southbound")
+        self.assertEqual(trap.get_location(), "156 St between 99 - 98 Ave")
+        self.assertEqual(trap.get_speed(), 50)
+        self.assertEqual(trap.get_coords(), (53.54646216, -113.5085364))
+        self.assertEqual(trap.get_distance(), 0.0)
 
     def test_refresh(self):
         trap = Trap(
@@ -57,8 +60,8 @@ class TestTrap(unittest.TestCase):
             coords=(53.54646216, -113.5085364)
         )
 
-        trap.refresh((53, -113))
-        assert trap.distance
+        trap.refresh((53.452, -113.51))
+        self.assertEqual(trap.distance, 10.5041735513698)
 
     def test_lt(self):
         trap_1 = Trap(
@@ -79,4 +82,4 @@ class TestTrap(unittest.TestCase):
 
         trap_1.refresh((53, -114))
         trap_2.refresh((53, -114))
-        assert trap_1 < trap_2
+        self.assertLess(trap_1, trap_2)

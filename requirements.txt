@@ -1,2 +1,8 @@
-haversine
-requests
+certifi==2024.2.2
+charset-normalizer==3.3.2
+geographiclib==2.0
+geopy==2.4.1
+haversine==2.8.1
+idna==3.7
+requests==2.32.3
+urllib3==2.2.1

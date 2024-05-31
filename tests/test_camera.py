@@ -33,8 +33,8 @@ class TestCamera(unittest.TestCase):
             location="109 Street at 104 Avenue",
             coords=(53.54646216, -113.5085364)
         )
-        assert camera
-        assert isinstance(camera, Camera)
+        self.assertIsNotNone(camera)
+        self.assertIsInstance(camera, Camera)
     
     def test_getters(self):
         camera = Camera(
@@ -44,11 +44,11 @@ class TestCamera(unittest.TestCase):
             location="109 Street at 104 Avenue",
             coords=(53.54646216, -113.5085364)
         )
-        assert camera.get_location() == "109 Street at 104 Avenue"
-        assert camera.get_direction() == "Southbound"
-        assert camera.get_speed() == 50
-        assert camera.get_coords() == (53.54646216, -113.5085364)
-        assert camera.get_distance() == None
+        self.assertEqual(camera.get_location(), "109 Street at 104 Avenue")
+        self.assertEqual(camera.get_direction(), "Southbound")
+        self.assertEqual(camera.get_speed(), 50)
+        self.assertEqual(camera.get_coords(), (53.54646216, -113.5085364))
+        self.assertEqual(camera.get_distance(), 0.0)
 
     def test_refresh(self):
         camera = Camera(
@@ -58,9 +58,8 @@ class TestCamera(unittest.TestCase):
             location="109 Street at 104 Avenue",
             coords=(53.54646216, -113.5085364)
         )
-        new_position = (50, -100)
-        camera.refresh(new_position)
-        assert camera.get_distance() == 1007.6272078568426
+        camera.refresh((53.385, -113.35))
+        self.assertEqual(camera.distance, 20.79587510590846)
 
     def test_lt(self):
         camera_1 = Camera(
@@ -80,4 +79,4 @@ class TestCamera(unittest.TestCase):
         
         camera_1.refresh((50, -100))
         camera_2.refresh((50, -100))
-        assert camera_1 > camera_2
+        self.assertGreater(camera_1, camera_2)

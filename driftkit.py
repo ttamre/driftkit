@@ -38,6 +38,9 @@ SPEEDTRAP_ZONES = "https://data.edmonton.ca/resource/akzz-54k3.json"
 import sys
 import time
 import requests
+import certifi
+import ssl
+import geopy.geocoders
 
 from camera import Camera
 from trap import Trap
@@ -64,9 +67,17 @@ def menu():
     cameras = load_cameras()
     traps = load_traps()
 
-    # Get the user's current position and max distance
-    position = float(input("Current Latitude > ")), float(input("Current Longitude > "))
-    refresh_all(cameras, position)
+
+    # Get the user's address and max distance
+    try:
+        address = input("Location > ")
+        location = address_to_coords("{}, Edmonton, Alberta, Canada".format(address))
+    # Upon failure, prompt the user for coordinates (geopy is very finicky)
+    except:
+        print("ERROR: Could not find coordinates based on address")
+        location = input(), input()
+
+    refresh_all(cameras, location)
 
     limit = float(input("Max radius (0 for no limit) > "))
     print_cameras(cameras, limit=limit)
@@ -75,22 +86,22 @@ def menu():
         print("Options: refresh, lite, traps, quit")
         end_ui = input("> ")
 
-        # Refresh user position and/or max distance
+        # Refresh user location and/or max distance
         if end_ui.startswith("r"):
-            position = float(input("Current Latitude > ")), float(input("Current Longitude > "))
-            refresh_all(cameras, position)
+            location = float(input("Current Latitude > ")), float(input("Current Longitude > "))
+            refresh_all(cameras, location)
 
             limit = float(input("Max radius (0 for no limit) > "))
             print_cameras(cameras, limit=limit)
 
         # Lite mode
         elif end_ui.startswith("l"):
-            refresh_all(cameras, position)
+            refresh_all(cameras, location)
             print_cameras(cameras, lite=True, limit=limit)
 
         # Display speed traps
         elif end_ui.startswith("t"):
-            refresh_all(traps, position)
+            refresh_all(traps, location)
             print_traps(traps)
 
         # Quit the program
@@ -102,9 +113,11 @@ def load_cameras():
     '''
     Fetch the intersection cameras from the City of Edmonton API and return a list of Camera() objects
     '''
+
+    cameras = []
     response = requests.get(INTERSECTION_CAMERAS)
+
     if response.status_code == 200:
-        cameras = []
         for camera in response.json():
             cameras.append(
                 Camera(
@@ -114,13 +127,17 @@ def load_cameras():
                     location  = "{} {}".format(camera['approach'], camera['cross_street']),
                     coords    = (float(camera['latitude']), float(camera['longitude']))
                 ))
-        return cameras
+    else:
+        print("API Error: Could not fetch intersection cameras (Response code {})".format(response.status_code))
+
+    return cameras
 
 
 def load_traps():
     '''
     Fetch the speed trap zones from the City of Edmonton API and return a list of Trap() objects
     '''
+    traps = []
     response = requests.get(SPEEDTRAP_ZONES)
     if response.status_code == 200:
         traps = []
@@ -133,7 +150,10 @@ def load_traps():
                     location  = trap['location_description'][3:],
                     coords    = (float(trap['latitude']), float(trap['longitude']))
                 ))
-        return traps
+    else:
+        print("API Error: Could not fetch speed trap zones (Response code {})".format(response.status_code))
+    
+    return traps
 
 
 def print_cameras(cameras:list, lite:bool=False, limit:int=0):
@@ -174,12 +194,28 @@ def print_traps(traps:list):
     print("-" * 70)
 
 
-def refresh_all(items:list, position:tuple):
+def refresh_all(items:list, location:tuple):
     '''
-    Update all camera distances with our current position
+    Update all camera distances with our current location
 
     :param  items       list of Camera() or Trap() objects (NOTE: Must have a refresh() class method)
-    :param  position    current position of the user
+    :param  location    current location of the user
     '''
     for item in items:
-        item.refresh(position)
+        item.refresh(location)
+
+def address_to_coords(address:str):
+    '''
+    Convert an address to GPS coordinates
+
+    :param  address     str     Address to convert
+    :return             tuple   GPS coordinates (latitude, longitude)
+    '''
+    context = ssl.create_default_context(cafile=certifi.where())
+    geopy.geocoders.options.default_ssl_context = context
+    geolocator = geopy.geocoders.Nominatim(user_agent="driftkit")
+    location = geolocator.geocode(address)
+    return location.latitude, location.longitude
+
+if __name__ == "__main__":
+    menu()

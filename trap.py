@@ -26,7 +26,7 @@ class Trap:
 
     MAPPINGS = {"NB": "Northbound", "EB": "Eastbound", "SB": "Southbound", "WB": "Westbound"}
 
-    def __init__(self, site_id, speed, direction, location, coords, distance=None):
+    def __init__(self, site_id, speed, direction, location, coords, distance=0.0):
         """
         :param site_id      str     Site ID of the speed trap zone
         :param speed        int     Speed limit of the speed trap zone
@@ -36,37 +36,38 @@ class Trap:
         :param distance     float   Approximate distance between the user and the trap zone
         """
         self.site_id = site_id
-        self.direction = self.MAPPINGS[direction]
+        self.direction = self.MAPPINGS.get(direction, "")
         self.location = location
         self.coords = coords
         self.speed = speed
         self.distance = distance
 
-    def get_direction(self):
-        return self.direction
-        
-    def get_location(self):
-        return self.location
-
-    def get_coords(self):
-        return self.coords
 
     def get_speed(self):
         return self.speed
+
+    def get_direction(self):
+        return self.direction
+
+    def get_location(self):
+        return self.location
+    
+    def get_coords(self):
+        return self.coords
+
+    def get_distance(self):
+        return self.distance
+    
     
     def refresh(self, position):
         '''
         Recalculate the distance between the user and the trap zone
 
-        Parameter(s):   position<tuple><float>  Current position of the user
-        Return:         None
+        :param  position    tuple    User's GPS coordinates (latitude, longitude)
         '''
         self.distance = haversine(position, self.coords)
 
     def __lt__(self, other):
-        # return self.order[self.direction] < other.order[other.direction]
-        if self.distance is None or other.distance is None:
-            raise TypeError("Cannot compare object(s) with distance=None")
         return self.distance < other.distance
 
     def __repr__(self):
