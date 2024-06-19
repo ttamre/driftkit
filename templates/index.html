@@ -1,0 +1,107 @@
+<!-----------------------------------------------------------------------------
+Driftkit - yeg speed camera and speed zone locator
+Copyright (C) 2024 Tem Tamre
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-------------------------------------------------------------------------------
+Main webpage
+------------------------------------------------------------------------------>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <!-- <meta charset="utf-8"> -->
+  <title>DRIFTKIT</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/skeleton.css') }}">
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+
+</head>
+<body>
+
+  <!-- Title
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<div class="container" style="margin-top: 5%">
+		<h2>driftkit <a href="https://github.com/ttamre/driftkit" target="_blank" rel="noopener noreferrer"><img src="{{ url_for('static', filename='images/github-logo.svg') }}" height="30rem"></a></h2>
+		<p><b>yeg</b> speed cam + speed trap locator</p>
+	</div>
+
+  <!-- Form
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  	<div class="container" style="margin-top: -3%;">
+		<div class="row">
+	  		<div class="two-thirds column" style="margin-top: 7%">
+				<form action="/" method="GET">
+					<input name="address" id="address" style="width: 50%;" type="text" placeholder="address">
+					<input name="radius" id="radius" style="width: 15%;" type="number" placeholder="radius">
+					<button type="submit" class="button">search</button>
+				</form>
+	  		</div>
+		</div>
+  	</div>
+
+  <!-- Table
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	{% if data|length > 0 %}
+		<div class="container">
+			<div class="row">
+				<table id="resultTable">
+
+					<thead>
+						<tr>
+							<th></th>
+							<th>distance</th>
+							<th>speed</th>
+							<th>location</th>
+							<th>direction</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						{% for item in data %}
+							<tr>
+								<td>{{ item.icon }}</td>
+								<td>{{ item.distance|round(2) }} km</td>
+								<td>{{ item.speed }} km/h</td>
+								<td>{{ item.location }}</td>
+								<td>{{ item.direction }}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	
+  {% endif %}
+
+</body>
+</html>

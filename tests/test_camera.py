@@ -1,5 +1,8 @@
+#!/usr/bin/env python3
+
 """
-Driftkit - Edmonton intersection camera and speed zone tracker
+-------------------------------------------------------------------------------
+Driftkit - yeg speed camera and speed zone locator
 Copyright (C) 2019 Tem Tamre
 
 This program is free software: you can redistribute it and/or modify
@@ -14,15 +17,14 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-
-Filename: test_camera.py
-Description: Unit test for the camera class
+-------------------------------------------------------------------------------
+Camera unit tests
+-------------------------------------------------------------------------------
 """
 
 import unittest
 
-from camera import Camera
+from api.device import Camera, Device
 
 class TestCamera(unittest.TestCase):
     def test_init(self):
@@ -35,6 +37,7 @@ class TestCamera(unittest.TestCase):
         )
         self.assertIsNotNone(camera)
         self.assertIsInstance(camera, Camera)
+        self.assertIsInstance(camera, Device)
     
     def test_getters(self):
         camera = Camera(
@@ -49,13 +52,14 @@ class TestCamera(unittest.TestCase):
         self.assertEqual(camera.get_speed(), 50)
         self.assertEqual(camera.get_coords(), (53.54646216, -113.5085364))
         self.assertEqual(camera.get_distance(), 0.0)
+        self.assertEqual(camera.get_icon(), "📷")
 
     def test_refresh(self):
         camera = Camera(
             site_id="TEST_REFRESH",
-            speed=50,
-            direction="Southbound",
-            location="109 Street at 104 Avenue",
+            speed=0,
+            direction="",
+            location="",
             coords=(53.54646216, -113.5085364)
         )
         camera.refresh((53.385, -113.35))
@@ -64,19 +68,68 @@ class TestCamera(unittest.TestCase):
     def test_lt(self):
         camera_1 = Camera(
             site_id="TEST_LT_FARTHER",
-            speed=50,
-            direction="Southbound",
-            location="109 Street at 104 Avenue",
+            speed=0,
+            direction="",
+            location="",
             coords=(53.54646216, -113.5085364)
         )
         camera_2 = Camera(
             site_id="TEST_LT_CLOSER",
-            speed=50,
-            direction="Southbound",
-            location="109 Street at 104 Avenue",
+            speed=0,
+            direction="",
+            location="",
             coords=(50, -100)
         )
         
         camera_1.refresh((50, -100))
         camera_2.refresh((50, -100))
         self.assertGreater(camera_1, camera_2)
+
+    def test_le(self):
+        camera_1 = Camera(
+            site_id="TEST_LT_FARTHER",
+            speed=0,
+            direction="",
+            location="",
+            coords=(53.54646216, -113.5085364)
+        )
+        camera_2 = Camera(
+            site_id="TEST_LT_CLOSER",
+            speed=0,
+            direction="",
+            location="",
+            coords=(50, -100)
+        )
+        camera_3 = Camera(
+            site_id="TEST_LT_CLOSER_COPY",
+            speed=0,
+            direction="",
+            location="",
+            coords=(50, -100)
+        )
+        
+        camera_1.refresh((50, -100))
+        camera_2.refresh((50, -100))
+        camera_3.refresh((50, -100))
+        self.assertGreaterEqual(camera_1, camera_2)
+        self.assertGreaterEqual(camera_2, camera_3)
+
+    def test_eq(self):
+        camera_1 = Camera(
+            site_id="TEST_EQ_1",
+            speed=0,
+            direction="",
+            location="",
+            coords=(53.54646216, -113.5085364)
+        )
+        camera_2 = Camera(
+            site_id="TEST_EQ_2",
+            speed=50,
+            direction="Southbound",
+            location="109 Street at 104 Avenue",
+            coords=(53.54646216, -113.5085364)
+        )
+        
+        camera_1.refresh((50, -100))
+        camera_2.refresh((50, -100))
+        self.assertEqual(camera_1, camera_2)

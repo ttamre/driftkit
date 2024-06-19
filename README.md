@@ -1,10 +1,14 @@
-# driftkit
-<img src="https://img.shields.io/badge/python-3.12.3-blue" /> [![CircleCI](https://circleci.com/gh/ttamre/driftkit/tree/master.svg?style=shield)](https://circleci.com/gh/ttamre/driftkit/tree/master)
+<h1 style="font-family:monospace">driftkit</h1>
+<div style="padding-bottom:20px">
+    <img src="https://img.shields.io/badge/python-3.12.3-blue" />
+    <img src="https://img.shields.io/badge/flask-3.0.3-orange" />
+    <img src="https://img.shields.io/badge/gunicorn-22.0.0-purple" />
+    <img src="https://circleci.com/gh/ttamre/driftkit/tree/master.svg?style=shield" href="https://circleci.com/gh/ttamre/driftkit/tree/master"/>
+</div>
 
+edmonton's speed camera + speed trap locator
 
-Python script that reads speed camera data and displays their locations, distance from you, and other important information.
-
-Works with the City of Edmonton's open data portal, https://data.edmonton.ca
+https://data.edmonton.ca
 
 
 ## Getting Started
@@ -22,9 +26,18 @@ pip install -r requirements.txt
 ```
 
 ### Usage
+
+### Webserver
+```
+. venv/bin/activate
+gunicorn app:app
+```
+
+
+### Command line interface
 ```
 . venv/bin/activate   # if not already active
-python3 driftkit.py
+python3 api/cli.py
 ```
 
 ```
@@ -42,7 +55,7 @@ Location >               # Enter your current address (or any address)
 ```
 
 ```
-Max radius (0 for no limit) >  # Enter a max radius to search
+Max radius (0 for no limit) >           # Enter a max radius to search
 ```
 
 
@@ -67,4 +80,5 @@ Enter one of the three options
 
 This project is licensed under the GNU General Public License - see [LICENSE](LICENSE) for more details
 
-![demo](demo.gif)
+![web](demo_web.png)
+![demo](demo_cli.gif)

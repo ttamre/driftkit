@@ -1,5 +1,8 @@
+#!/usr/bin/env python3
+
 """
-Driftkit - Edmonton intersection camera and speed zone tracker
+-------------------------------------------------------------------------------
+Driftkit - yeg speed camera and speed zone locator
 Copyright (C) 2019 Tem Tamre
 
 This program is free software: you can redistribute it and/or modify
@@ -14,15 +17,14 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-
-Filename: test_trap.py
-Description: Unit test for the trap class
+-------------------------------------------------------------------------------
+Trap unit tests
+-------------------------------------------------------------------------------
 """
 
 import unittest
 
-from trap import Trap
+from api.device import Trap, Device
 
 class TestTrap(unittest.TestCase):
 
@@ -36,6 +38,7 @@ class TestTrap(unittest.TestCase):
         )
         self.assertIsNotNone(trap)
         self.assertIsInstance(trap, Trap)
+        self.assertIsInstance(trap, Device)
     
     def test_getters(self):
         trap = Trap(
@@ -45,18 +48,21 @@ class TestTrap(unittest.TestCase):
             location="156 St between 99 - 98 Ave",
             coords=(53.54646216, -113.5085364)
         )
+
+        self.assertEqual(trap.get_site_id(), "TEST_GETTERS")
+        self.assertEqual(trap.get_speed(), 50)
         self.assertEqual(trap.get_direction(), "Southbound")
         self.assertEqual(trap.get_location(), "156 St between 99 - 98 Ave")
-        self.assertEqual(trap.get_speed(), 50)
         self.assertEqual(trap.get_coords(), (53.54646216, -113.5085364))
         self.assertEqual(trap.get_distance(), 0.0)
+        self.assertEqual(trap.get_icon(), "🪤")
 
     def test_refresh(self):
         trap = Trap(
             site_id="TEST_REFRESH",
-            speed=50,
-            direction="SB",
-            location="156 St between 99 - 98 Ave",
+            speed=0,
+            direction="",
+            location="",
             coords=(53.54646216, -113.5085364)
         )
 
@@ -66,20 +72,69 @@ class TestTrap(unittest.TestCase):
     def test_lt(self):
         trap_1 = Trap(
             site_id="TEST_LT_CLOSER",
-            speed=50,
-            direction="SB",
-            location="156 St between 99 - 98 Ave",
+            speed=0,
+            direction="",
+            location="",
             coords=(53.54646216, -113.5085364)
         )
 
         trap_2 = Trap(
             site_id="TEST_LT_FARTHER",
-            speed=50,
-            direction="SB",
-            location="156 St between 99 - 98 Ave",
+            speed=0,
+            direction="",
+            location="",
             coords=(55.38572953, -112.0371643)
         )
 
         trap_1.refresh((53, -114))
         trap_2.refresh((53, -114))
         self.assertLess(trap_1, trap_2)
+
+    def test_le(self):
+        trap_1 = Trap(
+            site_id="TEST_LT_FARTHER",
+            speed=0,
+            direction="",
+            location="",
+            coords=(53.54646216, -113.5085364)
+        )
+        trap_2 = Trap(
+            site_id="TEST_LT_CLOSER",
+            speed=0,
+            direction="",
+            location="",
+            coords=(50, -100)
+        )
+        trap_3 = Trap(
+            site_id="TEST_LT_CLOSER_COPY",
+            speed=0,
+            direction="",
+            location="",
+            coords=(50, -100)
+        )
+        
+        trap_1.refresh((50, -100))
+        trap_2.refresh((50, -100))
+        trap_3.refresh((50, -100))
+        self.assertGreaterEqual(trap_1, trap_2)
+        self.assertGreaterEqual(trap_2, trap_3)
+
+    def test_eq(self):
+        trap_1 = Trap(
+            site_id="TEST_EQ_1",
+            speed=0,
+            direction="",
+            location="",
+            coords=(53.54646216, -113.5085364)
+        )
+        trap_2 = Trap(
+            site_id="TEST_EQ_2",
+            speed=50,
+            direction="Southbound",
+            location="109 Street at 104 Avenue",
+            coords=(53.54646216, -113.5085364)
+        )
+        
+        trap_1.refresh((50, -100))
+        trap_2.refresh((50, -100))
+        self.assertEqual(trap_1, trap_2)

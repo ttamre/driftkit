@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 """
-Driftkit - Edmonton intersection camera and speed zone tracker
+-------------------------------------------------------------------------------
+Driftkit - yeg speed camera and speed zone locator
 Copyright (C) 2019 Tem Tamre
 
 This program is free software: you can redistribute it and/or modify
@@ -16,34 +17,38 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-
-Filename: driftkit.py
-Description: Main file for the driftkit program
-
-Data from the City of Edmonton open data portal
-https://data.edmonton.ca/Transportation/Intersection-Safety-Device-Locations-Map/fwx6-by2r
-
-References:
-https://docs.python.org/3.6/library/csv.html
-https://stackoverflow.com/a/40283805
+-------------------------------------------------------------------------------
+CLI interface
+-------------------------------------------------------------------------------
 """
 __author__ = "Tem Tamre"
-__email__ = "ttamre@ualberta.ca"
+__email__ = "temtamre@gmail.com"
 
-DEBUG = False
-INTERSECTION_CAMERAS = "https://data.edmonton.ca/resource/7fnd-72gr.json"
-SPEEDTRAP_ZONES = "https://data.edmonton.ca/resource/akzz-54k3.json"
 
+import os
 import sys
 import time
 import requests
 import certifi
 import ssl
+import logging
 import geopy.geocoders
 
-from camera import Camera
-from trap import Trap
+from api.device import Camera, Trap
+
+
+# Environment variables
+APP_TOKEN = os.environ['DRIFTKIT_APP_TOKEN']
+SECRET_TOKEN = os.environ['DRIFTKIT_SECRET_TOKEN']
+
+# API endpoints
+CAMERA_URL = f"https://data.edmonton.ca/resource/7fnd-72gr.json"
+TRAP_URL = f"https://data.edmonton.ca/resource/akzz-54k3.json"
+
+# Defining our logger here and initializing it later when file is ran
+# to avoid wasting memory on imports
+cli_logger = None
+# Functions that require a logger can have one passed as an argument 
 
 
 def menu():
@@ -64,20 +69,16 @@ def menu():
     print("-" * 70)
 
     # Load all cameras and traps
-    cameras = load_cameras()
-    traps = load_traps()
+    cameras = load_all_cameras()
+    traps = load_all_traps()
 
 
     # Get the user's address and max distance
-    try:
-        address = input("Location > ")
-        location = address_to_coords("{}, Edmonton, Alberta, Canada".format(address))
-    # Upon failure, prompt the user for coordinates (geopy is very finicky)
-    except:
-        print("ERROR: Could not find coordinates based on address")
-        location = input(), input()
+    coords = None
+    while not coords:
+        coords = address_to_coords(location=input("Location > "))
 
-    refresh_all(cameras, location)
+    refresh_devices(cameras, coords)
 
     limit = float(input("Max radius (0 for no limit) > "))
     print_cameras(cameras, limit=limit)
@@ -86,22 +87,24 @@ def menu():
         print("Options: refresh, lite, traps, quit")
         end_ui = input("> ")
 
-        # Refresh user location and/or max distance
+        # Refresh user location and max distance
         if end_ui.startswith("r"):
-            location = float(input("Current Latitude > ")), float(input("Current Longitude > "))
-            refresh_all(cameras, location)
+            coords = None
+            while not coords:
+                coords = address_to_coords(input("Location > "))
+
+            refresh_devices(cameras, coords)
 
             limit = float(input("Max radius (0 for no limit) > "))
             print_cameras(cameras, limit=limit)
 
-        # Lite mode
+        # Lite mode (condensed output)
         elif end_ui.startswith("l"):
-            refresh_all(cameras, location)
             print_cameras(cameras, lite=True, limit=limit)
 
         # Display speed traps
         elif end_ui.startswith("t"):
-            refresh_all(traps, location)
+            refresh_devices(traps, coords)
             print_traps(traps)
 
         # Quit the program
@@ -109,13 +112,13 @@ def menu():
             sys.exit()
     
 
-def load_cameras():
+def load_all_cameras(logger=cli_logger):
     '''
     Fetch the intersection cameras from the City of Edmonton API and return a list of Camera() objects
     '''
 
     cameras = []
-    response = requests.get(INTERSECTION_CAMERAS)
+    response = requests.get(CAMERA_URL)
 
     if response.status_code == 200:
         for camera in response.json():
@@ -128,17 +131,18 @@ def load_cameras():
                     coords    = (float(camera['latitude']), float(camera['longitude']))
                 ))
     else:
-        print("API Error: Could not fetch intersection cameras (Response code {})".format(response.status_code))
+        logger.error(f"cli.load_all_cameras(): got {response.status_code} from data.edmonton.ca")
+        logger.error(response.text)
 
     return cameras
 
 
-def load_traps():
+def load_all_traps(logger=cli_logger):
     '''
     Fetch the speed trap zones from the City of Edmonton API and return a list of Trap() objects
     '''
     traps = []
-    response = requests.get(SPEEDTRAP_ZONES)
+    response = requests.get(TRAP_URL)
     if response.status_code == 200:
         traps = []
         for trap in response.json():
@@ -151,7 +155,8 @@ def load_traps():
                     coords    = (float(trap['latitude']), float(trap['longitude']))
                 ))
     else:
-        print("API Error: Could not fetch speed trap zones (Response code {})".format(response.status_code))
+        logger.error(f"cli.load_all_traps(): got {response.status_code} from data.edmonton.ca")
+        logger.error(response.text)
     
     return traps
 
@@ -194,28 +199,52 @@ def print_traps(traps:list):
     print("-" * 70)
 
 
-def refresh_all(items:list, location:tuple):
+def refresh_devices(devices, coords):
     '''
-    Update all camera distances with our current location
-
-    :param  items       list of Camera() or Trap() objects (NOTE: Must have a refresh() class method)
-    :param  location    current location of the user
+    Refresh the distance of all devices in the list
+    :param devices  list    List of Device() objects
+    :param coords   tuple   GPS coordinates of the user (latitude, longitude)
     '''
-    for item in items:
-        item.refresh(location)
+    list(map(lambda device: device.refresh(coords), devices))
 
-def address_to_coords(address:str):
+
+def address_to_coords(location:str, logger=cli_logger):
     '''
-    Convert an address to GPS coordinates
+    If given an address, converts it to GPS coordinates (floats)
+    If given coordinates, returns them as floats
 
-    :param  address     str     Address to convert
+    NOTE: This only works for the city of Edmonton, Alberta, Canada
+    since the only data source is the Edmonton Open Data Portal
+
+    :param  location    str     Address or coordinates
     :return             tuple   GPS coordinates (latitude, longitude)
+                                or None if address is invalid
     '''
+    if not location:
+        logger.error("cli.address_to_coords(): invalid input (no location provided)")
+        return None
+
+    # If address starts with a colon, it's a coordinate
+    if location.startswith(":"):
+        lat, lon = location[1:].split(" ")[0], location[1:].split(" ")[1]
+        try:
+            return float(lat), float(lon)
+        except ValueError:
+            logger.error(f"cli.address_to_coords(): invalid coordinates ({location})")
+            return None
+
     context = ssl.create_default_context(cafile=certifi.where())
     geopy.geocoders.options.default_ssl_context = context
+
     geolocator = geopy.geocoders.Nominatim(user_agent="driftkit")
-    location = geolocator.geocode(address)
-    return location.latitude, location.longitude
+    coords = geolocator.geocode(f"{location}, Edmonton, Alberta, Canada")
+
+    if not coords:
+        logger.error(f"cli.address_to_coords(): geopy couldn't find coordinates for {location}")
+        return None
+
+    return coords.latitude, coords.longitude
 
 if __name__ == "__main__":
+    cli_logger = logging.getLogger(__name__)
     menu()
