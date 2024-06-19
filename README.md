@@ -1,8 +1,10 @@
-# driftkit
-<img src="https://img.shields.io/badge/python-3.12.3-blue" />
-<img src="https://img.shields.io/badge/flask-3.0.3-orange" />
-<img src="https://img.shields.io/badge/gunicorn-22.0.0-purple" />
-<img src="https://circleci.com/gh/ttamre/driftkit/tree/master.svg?style=shield" href="https://circleci.com/gh/ttamre/driftkit/tree/master"/>
+<h1 style="font-family:monospace">driftkit</h1>
+<div style="padding-bottom:20px">
+    <img src="https://img.shields.io/badge/python-3.12.3-blue" />
+    <img src="https://img.shields.io/badge/flask-3.0.3-orange" />
+    <img src="https://img.shields.io/badge/gunicorn-22.0.0-purple" />
+    <img src="https://circleci.com/gh/ttamre/driftkit/tree/master.svg?style=shield" href="https://circleci.com/gh/ttamre/driftkit/tree/master"/>
+</div>
 
 edmonton's speed camera + speed trap locator
 
@@ -53,7 +55,7 @@ Location >               # Enter your current address (or any address)
 ```
 
 ```
-Max radius (0 for no limit) >  # Enter a max radius to search
+Max radius (0 for no limit) >           # Enter a max radius to search
 ```
 
 

@@ -41,10 +41,6 @@ Main webpage
   <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/skeleton.css') }}">
 
-  <!-- JS
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <script type="text/javascript" src="{{ url_for('static', filename='index.js') }}"></script>
-
   <!-- Favicon
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
@@ -101,10 +97,10 @@ Main webpage
 							</tr>
 						{% endfor %}
 					</tbody>
-
 				</table>
 			</div>
 		</div>
+	
   {% endif %}
 
 </body>
