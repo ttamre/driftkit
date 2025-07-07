@@ -10,6 +10,8 @@ edmonton's speed camera + speed trap locator
 
 https://data.edmonton.ca
 
+![web](demo_web.png)
+![demo](demo_cli.gif)
 
 ## Getting Started
 
@@ -79,6 +81,3 @@ Enter one of the three options
 ## License
 
 This project is licensed under the GNU General Public License - see [LICENSE](LICENSE) for more details
-
-![web](demo_web.png)
-![demo](demo_cli.gif)
